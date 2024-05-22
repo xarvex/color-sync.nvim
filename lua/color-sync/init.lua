@@ -1,3 +1,7 @@
+local M = {}
+
+function M.setup() end
+
 local wezterm = (vim.env.XDG_CONFIG_HOME or (assert(vim.env.HOME) .. "/.config")) .. "/wezterm"
 if vim.fn.isdirectory(wezterm) then
     local wezterm_colorschemes = {
@@ -26,3 +30,5 @@ if vim.fn.isdirectory(wezterm) then
         end
     })
 end
+
+return M
