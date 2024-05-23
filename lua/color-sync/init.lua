@@ -6,6 +6,7 @@ local group = vim.api.nvim_create_augroup("ColorSync", {})
 
 local wezterm = (vim.env.XDG_CONFIG_HOME or (assert(vim.env.HOME) .. "/.config")) .. "/wezterm"
 if vim.fn.isdirectory(wezterm) then
+    local generated = wezterm .. "/generated"
     local wezterm_colorschemes = {
         ["carbonfox"] = true,
         ["duskfox"] = true,
@@ -28,8 +29,9 @@ if vim.fn.isdirectory(wezterm) then
             vim.base64.encode(terminal_colorscheme() or "") .. "\x07")
     end
     local function save()
+        vim.fn.mkdir(generated, "p")
         local data = terminal_colorscheme() or ""
-        vim.fn.writefile({ data }, wezterm .. "/generated_neovim_colorscheme", "")
+        vim.fn.writefile({ data }, generated .. "/neovim_colorscheme", "")
         vim.notify("Setting WezTerm colorscheme to " .. data, vim.log.levels.INFO)
     end
     local override_attempt = nil
