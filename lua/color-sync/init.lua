@@ -31,7 +31,7 @@ if vim.fn.isdirectory(wezterm) then
             vim.api.nvim_create_autocmd("VimEnter", {
                 once = true,
                 group = group,
-                callback = function() write_save() end
+                callback = write_save
             })
         end
     end
