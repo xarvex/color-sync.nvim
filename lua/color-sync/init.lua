@@ -14,26 +14,33 @@ if vim.fn.isdirectory(wezterm) then
         ["rose-pine"] = true
     }
 
-    local function colorscheme_into_terminal(colorscheme)
-        return type(wezterm_colorschemes[colorscheme]) == "string" and wezterm_colorschemes[colorscheme] or colorscheme
-    end
-
     local colorscheme = nil
-    local function write_save()
-        local save = colorscheme_into_terminal(colorscheme ~= nil and colorscheme or vim.g.colors_name) or ""
-        vim.fn.writefile({ save }, wezterm .. "/generated_neovim_colorscheme", "")
-        vim.notify("Setting WezTerm colorscheme to " .. save, vim.log.levels.INFO)
+    local function terminal_colorscheme()
+        local key = colorscheme ~= nil and colorscheme or vim.g.colors_name
+        local value = wezterm_colorschemes[key]
+        if value ~= nil then
+            return type(value) == "string" and value or key
+        end
+    end
+    local function save()
+        local data = terminal_colorscheme() or ""
+        vim.fn.writefile({ data }, wezterm .. "/generated_neovim_colorscheme", "")
+        vim.notify("Setting WezTerm colorscheme to " .. data, vim.log.levels.INFO)
     end
     local save_attempt = nil
-    local function request_save()
+    local function register()
         if vim.v.vim_did_enter == 1 then
+            vim.fn.chansend(vim.v.stderr,
+                "\x1b]1337;SetUserVar=neovim_colorscheme=" ..
+                vim.base64.encode(terminal_colorscheme() or "") .. "\x07")
+
             if save_attempt ~= nil then save_attempt:stop() end
-            save_attempt = vim.defer_fn(write_save, 800)
+            save_attempt = vim.defer_fn(save, 800)
         else
             vim.api.nvim_create_autocmd("VimEnter", {
                 once = true,
                 group = group,
-                callback = request_save
+                callback = register
             })
         end
     end
@@ -42,11 +49,11 @@ if vim.fn.isdirectory(wezterm) then
         group = group,
         callback = function(args)
             colorscheme = args.match
-            request_save()
+            register()
         end
     })
 
-    request_save()
+    register()
 end
 
 return M
