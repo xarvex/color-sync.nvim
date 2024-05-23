@@ -22,18 +22,22 @@ if vim.fn.isdirectory(wezterm) then
             return type(value) == "string" and value or key
         end
     end
+    local function override()
+        vim.fn.chansend(vim.v.stderr,
+            "\x1b]1337;SetUserVar=neovim_colorscheme=" ..
+            vim.base64.encode(terminal_colorscheme() or "") .. "\x07")
+    end
     local function save()
         local data = terminal_colorscheme() or ""
         vim.fn.writefile({ data }, wezterm .. "/generated_neovim_colorscheme", "")
         vim.notify("Setting WezTerm colorscheme to " .. data, vim.log.levels.INFO)
     end
+    local override_attempt = nil
     local save_attempt = nil
     local function register()
         if vim.v.vim_did_enter == 1 then
-            vim.fn.chansend(vim.v.stderr,
-                "\x1b]1337;SetUserVar=neovim_colorscheme=" ..
-                vim.base64.encode(terminal_colorscheme() or "") .. "\x07")
-
+            if override_attempt ~= nil then override_attempt:stop() end
+            override_attempt = vim.defer_fn(override, 400)
             if save_attempt ~= nil then save_attempt:stop() end
             save_attempt = vim.defer_fn(save, 800)
         else
