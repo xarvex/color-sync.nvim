@@ -14,24 +14,37 @@ if vim.fn.isdirectory(wezterm) then
         ["rose-pine"] = true
     }
 
-    -- only register once in UI
-    vim.api.nvim_create_autocmd("UIEnter", {
-        once = true,
-        group = group,
-        callback = function()
-            vim.api.nvim_create_autocmd("ColorScheme", {
+    local function colorscheme_into_terminal(colorscheme)
+        return type(wezterm_colorschemes[colorscheme]) == "string" and wezterm_colorschemes[colorscheme] or colorscheme
+    end
+
+    local colorscheme = nil
+    local function write_save()
+        local save = colorscheme_into_terminal(colorscheme ~= nil and colorscheme or vim.g.colors_name) or ""
+        vim.fn.writefile({ save }, wezterm .. "/generated_neovim_colorscheme", "")
+        vim.notify("Setting WezTerm colorscheme to " .. save, vim.log.levels.INFO)
+    end
+    local function request_save()
+        if vim.v.vim_did_enter == 1 then
+            write_save()
+        else
+            vim.api.nvim_create_autocmd("VimEnter", {
+                once = true,
                 group = group,
-                callback = function(args)
-                    local colorscheme = wezterm_colorschemes[args.match]
-                    if colorscheme then
-                        if type(colorscheme) ~= "string" then colorscheme = args.match end
-                        vim.fn.writefile({ colorscheme }, wezterm .. "/generated_neovim_colorscheme", "")
-                        vim.notify("Setting WezTerm colorscheme to " .. colorscheme, vim.log.levels.INFO)
-                    end
-                end
+                callback = function() write_save() end
             })
         end
+    end
+
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        group = group,
+        callback = function(args)
+            colorscheme = args.match
+            request_save()
+        end
     })
+
+    write_save()
 end
 
 return M
