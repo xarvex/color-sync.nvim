@@ -15,51 +15,51 @@ if vim.fn.isdirectory(wezterm) then
         ["rose-pine"] = true
     }
 
-    local colorscheme = nil
-    local function terminal_colorscheme()
+    local function terminal_colorscheme(colorscheme)
         local key = colorscheme ~= nil and colorscheme or vim.g.colors_name
         local value = wezterm_colorschemes[key]
         if value ~= nil then
             return type(value) == "string" and value or key
         end
     end
-    local function override()
+    local function override(colorscheme)
         vim.fn.chansend(vim.v.stderr,
             "\x1b]1337;SetUserVar=neovim_colorscheme=" ..
-            vim.base64.encode(terminal_colorscheme() or "") .. "\x07")
+            vim.base64.encode(terminal_colorscheme(colorscheme) or "") .. "\x07")
     end
-    local function save()
+    local function save(colorscheme)
         vim.fn.mkdir(generated, "p")
-        local data = terminal_colorscheme() or ""
+        local data = terminal_colorscheme(colorscheme) or ""
         vim.fn.writefile({ data }, generated .. "/neovim_colorscheme", "")
         vim.notify("Setting WezTerm colorscheme to " .. data, vim.log.levels.INFO)
     end
-    local override_attempt = nil
-    local save_attempt = nil
-    local function register()
+    local override_defer = nil
+    local save_defer = nil
+    local start_handle = nil
+    local function register(colorscheme)
         if vim.v.vim_did_enter == 1 then
-            if override_attempt ~= nil then override_attempt:stop() end
-            override_attempt = vim.defer_fn(override, 400)
-            if save_attempt ~= nil then save_attempt:stop() end
-            save_attempt = vim.defer_fn(save, 800)
+            if override_defer ~= nil then override_defer:stop() end
+            if save_defer ~= nil then save_defer:stop() end
+            override_defer = vim.defer_fn(function() override(colorscheme) end, 400)
+            save_defer = vim.defer_fn(function() save(colorscheme) end, 800)
         else
-            vim.api.nvim_create_autocmd("VimEnter", {
+            if start_handle ~= nil then vim.api.nvim_del_autocmd(start_handle) end
+            start_handle = vim.api.nvim_create_autocmd("VimEnter", {
                 once = true,
                 group = group,
-                callback = register
+                callback = function()
+                    override(colorscheme)
+                    save(colorscheme)
+                end
             })
         end
     end
 
+    register(vim.g.colors_name)
     vim.api.nvim_create_autocmd("ColorScheme", {
         group = group,
-        callback = function(args)
-            colorscheme = args.match
-            register()
-        end
+        callback = function(args) register(args.match) end
     })
-
-    register()
 end
 
 return M
