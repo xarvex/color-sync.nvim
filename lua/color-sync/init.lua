@@ -7,7 +7,8 @@ local function live_update(terminal, terminal_colorscheme)
     terminal.live_update(terminal_colorscheme)
 end
 local function save(terminal, terminal_colorscheme)
-    vim.notify("Setting " .. tostring(terminal) .. " colorscheme to " .. terminal_colorscheme, vim.log.levels.INFO)
+    vim.notify("Setting " .. tostring(terminal) .. " colorscheme to " .. (terminal_colorscheme or ""),
+        vim.log.levels.INFO)
     terminal.save(terminal_colorscheme)
 end
 

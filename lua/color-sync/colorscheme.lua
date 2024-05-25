@@ -8,7 +8,8 @@ local colorschemes = {
 
 return {
     convert = function(colorscheme, terminal)
-        local terminal_colorscheme = colorschemes[colorscheme][terminal.id]
+        local terminal_colorschemes = colorschemes[colorscheme]
+        local terminal_colorscheme = terminal_colorschemes and terminal_colorschemes[terminal.id] or nil
         return terminal_colorscheme == true and colorscheme or terminal_colorscheme
     end
 }
