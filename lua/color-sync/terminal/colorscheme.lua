@@ -4,25 +4,25 @@ local colorschemes = {
     ["dawnfox"]          = { wezterm = true },
     ["dayfox"]           = { wezterm = true },
     ["duskfox"]          = { wezterm = true },
-    ["nightfox"]         = { wezterm = true },
+    ["nightfox"]         = { kitty = "Nightfox", wezterm = true },
     ["nordfox"]          = { wezterm = true },
     ["terafox"]          = { wezterm = true },
 
     -- https://github.com/folke/tokyonight.nvim
     -- ["tokyonight"] must evaluate which is currently used
-    ["tokyonight-day"]   = { wezterm = "Tokyo Night Day" },
-    ["tokyonight-moon"]  = { wezterm = "Tokyo Night Moon" },
-    ["tokyonight-night"] = { wezterm = "Tokyo Night" },
-    ["tokyonight-storm"] = { wezterm = "Tokyo Night Storm" },
+    ["tokyonight-day"]   = { kitty = "Tokyo Night Day", wezterm = "Tokyo Night Day" },
+    ["tokyonight-moon"]  = { kitty = "Tokyo Night Moon", wezterm = "Tokyo Night Moon" },
+    ["tokyonight-night"] = { kitty = "Tokyo Night", wezterm = "Tokyo Night" },
+    ["tokyonight-storm"] = { kitty = "Tokyo Night Storm", wezterm = "Tokyo Night Storm" },
 
     -- https://github.com/nyoom-engineering/oxocarbon.nvim
     ["oxocarbon"]        = { wezterm = "Oxocarbon Dark (Gogh)" },
 
     -- https://github.com/rose-pine/neovim
-    ["rose-pine"]        = { wezterm = true },
-    ["rose-pine-dawn"]   = { wezterm = true },
+    ["rose-pine"]        = { kitty = "Rosé Pine", wezterm = true },
+    ["rose-pine-dawn"]   = { kitty = "Rosé Pine Dawn", wezterm = true },
     ["rose-pine-main"]   = "rose-pine",
-    ["rose-pine-moon"]   = { wezterm = true }
+    ["rose-pine-moon"]   = { kitty = "Rosé Pine Moon", wezterm = true }
 }
 
 return {

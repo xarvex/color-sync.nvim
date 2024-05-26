@@ -32,6 +32,17 @@ local function new_terminal(id, name, live_update, save)
 end
 
 local terminal_process = {
+    ["kitty"]       = new_terminal("kitty", "kitty", {
+        callback = function(terminal_colorscheme)
+            vim.system({ "kitty", "+kitten", "themes", terminal_colorscheme or "Default" })
+        end,
+        timeout = 0
+    }, {
+        callback = function(terminal_colorscheme)
+            vim.system({ "kitty", "+kitten", "themes", "--reload-in=all", terminal_colorscheme or "Default" })
+        end,
+        timeout = 800
+    }),
     ["wezterm-gui"] = new_terminal("wezterm", "WezTerm", {
         callback = function(terminal_colorscheme)
             vim.fn.chansend(vim.v.stderr,
