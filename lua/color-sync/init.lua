@@ -22,10 +22,12 @@ local function register(colorscheme)
     end
 end
 
-vim.schedule(function() register(vim.g.colors_name) end)
-vim.api.nvim_create_autocmd("ColorScheme", {
-    group = group,
-    callback = function(args) register(args.match) end
-})
+vim.schedule(function()
+    register(vim.g.colors_name)
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        group = group,
+        callback = function(args) register(args.match) end
+    })
+end)
 
 return { setup = function() end }
