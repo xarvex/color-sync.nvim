@@ -1,7 +1,8 @@
-local function new_terminal(id, name, live_update, save)
+local function new_terminal(id, name, default_colorscheme, live_update, save)
     local term = {
         id = id,
         name = name,
+        default_colorscheme = default_colorscheme,
         live_update = function(_, terminal_colorscheme)
             live_update.callback(terminal_colorscheme)
         end,
@@ -12,9 +13,12 @@ local function new_terminal(id, name, live_update, save)
                 self.live_update_timeout)
         end,
         save = function(self, terminal_colorscheme)
-            vim.notify("Setting " .. tostring(self) .. " colorscheme to " .. (terminal_colorscheme or ""),
+            vim.notify(
+                "Setting " .. tostring(self) .. " colorscheme to " ..
+                (terminal_colorscheme or self.default_colorscheme or ""),
                 vim.log.levels.INFO)
-            save.callback(terminal_colorscheme, vim.env.XDG_CONFIG_HOME or (assert(vim.env.HOME) .. "/.config"))
+            save.callback(terminal_colorscheme or self.default_colorscheme,
+                vim.env.XDG_CONFIG_HOME or (assert(vim.env.HOME) .. "/.config"))
         end,
         save_timeout = save.timeout,
         defer_save = function(self, terminal_colorscheme)
@@ -30,22 +34,22 @@ local function new_terminal(id, name, live_update, save)
 end
 
 local terminal_process = {
-    ["kitty"]       = new_terminal("kitty", "kitty", {
+    ["kitty"]       = new_terminal("kitty", "kitty", "Default", {
         callback = function(terminal_colorscheme)
-            vim.system({ "kitty", "+kitten", "themes", terminal_colorscheme or "Default" })
+            vim.system({ "kitty", "+kitten", "themes", terminal_colorscheme })
         end,
         timeout = 0
     }, {
         callback = function(terminal_colorscheme)
-            vim.system({ "kitty", "+kitten", "themes", "--reload-in=all", terminal_colorscheme or "Default" })
+            vim.system({ "kitty", "+kitten", "themes", "--reload-in=all", terminal_colorscheme })
         end,
         timeout = 800
     }),
-    ["wezterm-gui"] = new_terminal("wezterm", "WezTerm", {
+    ["wezterm-gui"] = new_terminal("wezterm", "WezTerm", "", {
         callback = function(terminal_colorscheme)
             vim.fn.chansend(vim.v.stderr,
                 "\x1b]1337;SetUserVar=neovim_colorscheme=" ..
-                vim.base64.encode(terminal_colorscheme or "") .. "\x07")
+                vim.base64.encode(terminal_colorscheme) .. "\x07")
         end,
         timeout = 0
     }, {
