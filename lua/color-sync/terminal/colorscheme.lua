@@ -26,7 +26,7 @@ local colorschemes = {
 }
 
 return {
-    convert = function(colorscheme, terminal)
+    get = function(colorscheme, terminal)
         local effective_colorscheme
         local terminal_colorschemes = colorschemes[colorscheme]
         while type(terminal_colorschemes) == "string" do

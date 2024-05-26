@@ -1,10 +1,19 @@
+local get_terminal_colorscheme = require("color-sync.terminal.colorscheme").get
+
 local function new_terminal(id, name, live_update, save)
     local term = {
         id = id,
         name = name,
-        live_update = live_update,
-        save = function(terminal_colorscheme)
+        live_update = function(_, terminal_colorscheme)
+            live_update(terminal_colorscheme)
+        end,
+        save = function(self, terminal_colorscheme)
+            vim.notify("Setting " .. tostring(self) .. " colorscheme to " .. (terminal_colorscheme or ""),
+                vim.log.levels.INFO)
             save(terminal_colorscheme, vim.env.XDG_CONFIG_HOME or (assert(vim.env.HOME) .. "/.config"))
+        end,
+        get_colorscheme = function(self, colorscheme)
+            return get_terminal_colorscheme(colorscheme, self)
         end
     }
     setmetatable(term, { __tostring = function(t) return t.name end })
