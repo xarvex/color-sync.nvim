@@ -1,5 +1,3 @@
-local get_terminal_colorscheme = require("color-sync.terminal.colorscheme").get
-
 local function new_terminal(id, name, live_update, save)
     local term = {
         id = id,
@@ -24,7 +22,7 @@ local function new_terminal(id, name, live_update, save)
             self.save_defer = vim.defer_fn(function() self:save(terminal_colorscheme) end, self.save_timeout)
         end,
         get_colorscheme = function(self, colorscheme)
-            return get_terminal_colorscheme(colorscheme, self)
+            return require("color-sync.terminal.colorscheme").get(colorscheme, self)
         end
     }
     setmetatable(term, { __tostring = function(t) return t.name end })
