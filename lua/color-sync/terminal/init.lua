@@ -3,8 +3,8 @@ local function new_terminal(id, name, default_colorscheme, live_update, save)
         id = id,
         name = name,
         default_colorscheme = default_colorscheme,
-        live_update = function(_, terminal_colorscheme)
-            live_update.callback(terminal_colorscheme)
+        live_update = function(self, terminal_colorscheme)
+            live_update.callback(terminal_colorscheme or self.default_colorscheme)
         end,
         live_update_timeout = live_update.timeout,
         defer_live_update = function(self, terminal_colorscheme)
